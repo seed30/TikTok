@@ -1,0 +1,80 @@
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- ----------------------------
+-- Table structure for comments
+-- ----------------------------
+DROP TABLE IF EXISTS `comments`;
+CREATE TABLE `comments` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '评论id，自增主键',
+  `user_id` bigint(20) NOT NULL COMMENT '评论发布用户id',
+  `video_id` bigint(20) NOT NULL COMMENT '评论视频id',
+  `comment_text` varchar(255) NOT NULL COMMENT '评论内容',
+  `create_date` datetime NOT NULL COMMENT '评论发布时间',
+  `cancel` tinyint(4) NOT NULL DEFAULT '0' COMMENT '默认评论发布为0，取消后为1',
+  PRIMARY KEY (`id`),
+  KEY `videoIdIdx` (`video_id`) USING BTREE COMMENT '评论列表使用视频id作为索引-方便查看视频下的评论列表'
+) ENGINE=InnoDB AUTO_INCREMENT=1206 DEFAULT CHARSET=utf8 COMMENT='评论表';
+
+-- ----------------------------
+-- Table structure for follows
+-- ----------------------------
+DROP TABLE IF EXISTS `follows`;
+CREATE TABLE `follows` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+  `user_id` bigint(20) NOT NULL COMMENT '用户id',
+  `follower_id` bigint(20) NOT NULL COMMENT '关注的用户',
+  `cancel` tinyint(4) NOT NULL DEFAULT '0' COMMENT '默认关注为0，取消关注为1',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `userIdToFollowerIdIdx` (`user_id`,`follower_id`) USING BTREE,
+  KEY `FollowerIdIdx` (`follower_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=1096 DEFAULT CHARSET=utf8 COMMENT='关注表';
+
+-- ----------------------------
+-- Table structure for likes
+-- ----------------------------
+DROP TABLE IF EXISTS `likes`;
+CREATE TABLE `likes` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+  `user_id` bigint(20) NOT NULL COMMENT '点赞用户id',
+  `video_id` bigint(20) NOT NULL COMMENT '被点赞的视频id',
+  `cancel` tinyint(4) NOT NULL DEFAULT '0' COMMENT '默认点赞为0，取消赞为1',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `userIdtoVideoIdIdx` (`user_id`,`video_id`) USING BTREE,
+  KEY `userIdIdx` (`user_id`) USING BTREE,
+  KEY `videoIdx` (`video_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=1229 DEFAULT CHARSET=utf8 COMMENT='点赞表';
+
+
+
+-- ----------------------------
+-- Table structure for videos
+-- ----------------------------
+DROP TABLE IF EXISTS `videos`;
+CREATE TABLE `videos` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '自增主键，视频唯一id',
+  `author_id` bigint(20) NOT NULL COMMENT '视频作者id',
+  `play_url` varchar(255) NOT NULL COMMENT '播放url',
+  `cover_url` varchar(255) NOT NULL COMMENT '封面url',
+  `publish_time` datetime NOT NULL COMMENT '发布时间戳',
+  `title` varchar(255) DEFAULT NULL COMMENT '视频名称',
+  PRIMARY KEY (`id`),
+  KEY `time` (`publish_time`) USING BTREE,
+  KEY `author` (`author_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=115 DEFAULT CHARSET=utf8 COMMENT='\r\n视频表';
+
+-- ----------------------------
+-- Table structure for users
+-- ----------------------------
+DROP TABLE IF EXISTS `user`;
+CREATE TABLE `user`
+(
+    `id`         bigint unsigned NOT NULL AUTO_INCREMENT COMMENT 'PK',
+    `username`   varchar(128) NOT NULL DEFAULT '' COMMENT 'Username',
+    `password`   varchar(128) NOT NULL DEFAULT '' COMMENT 'Password',
+    `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'User account create time',
+    `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'User account update time',
+    `deleted_at` timestamp NULL DEFAULT NULL COMMENT 'User account delete time',
+    PRIMARY KEY (`id`),
+    KEY          `idx_username` (`username`) COMMENT 'Username index'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='User account table';
