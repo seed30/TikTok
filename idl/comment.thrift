@@ -14,6 +14,7 @@ struct BaseResp {
     3: i64 service_time
 }
 
+
 struct User {
     1: i64 id
     2: string name
