@@ -18,6 +18,9 @@ struct User {
     1: i64 user_id
     2: string username
     3: string avatar
+    4: optional i64 follow_count
+    5: optional i64 follower_count
+    6: bool is_follow
 }
 
 struct CreateUserRequest {

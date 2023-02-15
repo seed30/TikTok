@@ -4,13 +4,16 @@ package api
 
 import (
 	"context"
-
-	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/seed30/TikTok/cmd/api/biz/model/api"
 	"github.com/seed30/TikTok/cmd/api/biz/mw"
 	"github.com/seed30/TikTok/cmd/api/biz/rpc"
+	"github.com/seed30/TikTok/dal/pack"
+	"github.com/seed30/TikTok/kitex_gen/feed"
 	"github.com/seed30/TikTok/kitex_gen/user"
 	"github.com/seed30/TikTok/pkg/errno"
+	"strconv"
+
+	"github.com/cloudwego/hertz/pkg/app"
 )
 
 // CreateUser .
@@ -38,4 +41,47 @@ func CreateUser(ctx context.Context, c *app.RequestContext) {
 // @router /v2/user/login [POST]
 func CheckUser(ctx context.Context, c *app.RequestContext) {
 	mw.JwtMiddleware.LoginHandler(ctx, c)
+}
+
+// GetUserFeed .
+// @router /v2/feed [GET]
+func GetUserFeed(ctx context.Context, c *app.RequestContext) {
+	var feedVar FeedParam
+	var latestTime int64
+	var token string
+	time := c.Query("latest_time")
+	if len(time) != 0 {
+		if tempTime, err := strconv.Atoi(time); err != nil {
+			SendResponse2(c, pack.BuildVideoResp(err))
+			return
+		} else {
+			latestTime = int64(tempTime)
+		}
+	}
+
+	feedVar.LatestTime = &latestTime
+
+	token = c.Query("token")
+	feedVar.Token = &token
+
+	resp, err := rpc.GetUserFeed(ctx, &feed.FeedRequest{
+		LatestTime: feedVar.LatestTime,
+		Token:      feedVar.Token,
+	})
+	if err != nil {
+		SendResponse2(c, pack.BuildVideoResp(errno.ConvertErr(err)))
+		return
+	}
+	SendResponse2(c, resp)
+	//var err error
+	//var req api.FeedRequest
+	//err = c.BindAndValidate(&req)
+	//if err != nil {
+	//	c.String(consts.StatusBadRequest, err.Error())
+	//	return
+	//}
+	//
+	//resp := new(api.FeedResponse)
+	//
+	//c.JSON(consts.StatusOK, resp)
 }
