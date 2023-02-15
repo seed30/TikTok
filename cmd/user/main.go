@@ -1,13 +1,8 @@
-
 package main
 
 import (
 	"net"
 
-	"github.com/seed30/TikTok/cmd/user/dal"
-	"github.com/seed30/TikTok/kitex_gen/user/userservice"
-	"github.com/seed30/TikTok/pkg/consts"
-	"github.com/seed30/TikTok/pkg/mw"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
@@ -16,6 +11,10 @@ import (
 	"github.com/kitex-contrib/obs-opentelemetry/provider"
 	"github.com/kitex-contrib/obs-opentelemetry/tracing"
 	etcd "github.com/kitex-contrib/registry-etcd"
+	"github.com/seed30/TikTok/dal"
+	"github.com/seed30/TikTok/kitex_gen/user/userservice"
+	"github.com/seed30/TikTok/pkg/consts"
+	"github.com/seed30/TikTok/pkg/mw"
 )
 
 func Init() {

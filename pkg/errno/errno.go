@@ -49,6 +49,7 @@ var (
 	ParamErr               = NewErrNo(int64(user.ErrCode_ParamErrCode), "Wrong Parameter has been given")
 	UserAlreadyExistErr    = NewErrNo(int64(user.ErrCode_UserAlreadyExistErrCode), "User already exists")
 	AuthorizationFailedErr = NewErrNo(int64(user.ErrCode_AuthorizationFailedErrCode), "Authorization failed")
+	ErrDatabase            = NewErrNo(100101, "Database error")
 )
 
 // ConvertErr convert error to Errno

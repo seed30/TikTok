@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
+	"github.com/seed30/TikTok/dal/pack"
 
-	"github.com/seed30/TikTok/cmd/user/pack"
 	"github.com/seed30/TikTok/cmd/user/service"
 	"github.com/seed30/TikTok/kitex_gen/user"
 	"github.com/seed30/TikTok/pkg/errno"
@@ -40,7 +40,8 @@ func (s *UserServiceImpl) MGetUser(ctx context.Context, req *user.MGetUserReques
 		return resp, nil
 	}
 
-	users, err := service.NewMGetUserService(ctx).MGetUser(req)
+	claimId := 0 //Todo
+	users, err := service.NewMGetUserService(ctx).MGetUser(req, int64(claimId))
 	if err != nil {
 		resp.BaseResp = pack.BuildBaseResp(err)
 		return resp, nil

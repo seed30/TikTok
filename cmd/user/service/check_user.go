@@ -1,13 +1,12 @@
-
 package service
 
 import (
 	"context"
 	"crypto/md5"
 	"fmt"
+	"github.com/seed30/TikTok/dal/db"
 	"io"
 
-	"github.com/seed30/TikTok/cmd/user/dal/db"
 	"github.com/seed30/TikTok/kitex_gen/user"
 	"github.com/seed30/TikTok/pkg/errno"
 )

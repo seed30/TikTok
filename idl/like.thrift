@@ -7,7 +7,7 @@ struct BaseResp {
 }
 
 struct User {
-    1：i64 id
+    1: i64 id
     2: string name
     3: i64 follow_count
     4: i64 follower_count
