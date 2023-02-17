@@ -5,12 +5,12 @@ a simple demo for TikTok backend
 ## Setup Basic Dependence
     docker-compose up
 ## Run User RPC Server
-cd cmd/user
-sh build.sh
+cd cmd/user\
+sh build.sh\
 sh output/bootstrap.sh
 
 ## Run API Server
-cd cmd/api
+cd cmd/api\
 go run .
 
 ## API Requests
