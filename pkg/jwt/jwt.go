@@ -1,66 +1,62 @@
 package jwt
 
 import (
+	"github.com/seed30/TikTok/pkg/constants"
 	"errors"
-	"github.com/golang-jwt/jwt"
+	"time"
+
+	"github.com/golang-jwt/jwt/v4"
 )
 
-// JWT signing Key
-type JWT struct {
-	SigningKey []byte
+var mySecret = []byte("douyin service")
+
+// MyClaims CustomClaims 自定义声明类型 并内嵌jwt.RegisteredClaims
+// jwt包自带的jwt.RegisteredClaims只包含了官方字段s
+// 假设我们这里需要额外记录一个userid字段，所以要自定义结构体
+// 如果想要保存更多信息，都可以添加到这个结构体中
+type MyClaims struct {
+	// 可根据需要自行添加字段
+	UserID               int64  `json:"user_id"`
+	Username             string `json:"username"`
+	jwt.RegisteredClaims        // 内嵌标准的声明
 }
 
-var (
-	ErrTokenExpired     = errors.New("Token expired")
-	ErrTokenNotValidYet = errors.New("Token is not active yet")
-	ErrTokenMalformed   = errors.New("That's not even a token")
-	ErrTokenInvalid     = errors.New("Couldn't handle this token")
-)
-
-// private claims, share information between parties that agree on using them
-// CustomClaims Structured version of Claims Section, as referenced at https://tools.ietf.org/html/rfc7519#section-4.1 See examples for how to use this with your own claim types
-type CustomClaims struct {
-	Id          int64
-	AuthorityId int64
-	jwt.StandardClaims
-}
-
-func NewJWT(SigningKey []byte) *JWT {
-	return &JWT{
-		SigningKey,
+// GenToken 生成JWT
+func GenToken(userid int64, username string) (aToken string, err error) {
+	// 实例化一个我们带创建的加密声明
+	aclaims := MyClaims{
+		// 自定义字段
+		userid,
+		username,
+		jwt.RegisteredClaims{
+			// 过期时间
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * time.Duration(1))),
+			// 签发人
+			Issuer: "douyin-service",
+		},
 	}
+
+	aToken, err = jwt.NewWithClaims(jwt.SigningMethodHS256, aclaims).SignedString(mySecret)
+	return
 }
 
-// CreateToken creates a new token
-func (j *JWT) CreateToken(claims CustomClaims) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	// zap.S().Debugf(token.SigningString())
-	return token.SignedString(j.SigningKey)
-
-}
-
-// ParseToken parses the token.
-func (j *JWT) ParseToken(tokenString string) (*CustomClaims, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return j.SigningKey, nil
+// ParseToken 解析JWT
+func ParseToken(tokenString string) (*MyClaims, error) {
+	// 解析token
+	// 如果是自定义Claim结构体则需要使用 ParseWithClaims 方法
+	var mc = new(MyClaims)
+	token, err := jwt.ParseWithClaims(tokenString, mc, func(token *jwt.Token) (i interface{}, err error) {
+		return mySecret, nil
 	})
 	if err != nil {
-		if ve, ok := err.(*jwt.ValidationError); ok {
-			if ve.Errors&jwt.ValidationErrorMalformed != 0 {
-				return nil, ErrTokenMalformed
-			} else if ve.Errors&jwt.ValidationErrorExpired != 0 {
-				return nil, ErrTokenExpired
-			} else if ve.Errors&jwt.ValidationErrorNotValidYet != 0 {
-				return nil, ErrTokenNotValidYet
-			} else {
-				return nil, ErrTokenInvalid
-			}
-
+		if errors.Is(err, jwt.ErrTokenExpired) {
+			err = constants.ErrTokenExpires
 		}
+		return nil, err
 	}
-	// verify the token claims
-	if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
-		return claims, nil
+	// 校验token
+	if token.Valid {
+		return mc, nil
 	}
-	return nil, ErrTokenInvalid
+	return nil, errors.New("invalid token")
 }

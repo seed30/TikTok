@@ -1,73 +1,22 @@
-namespace go api
+include "base.thrift"
+include "social.thrift"
 
-struct BaseResp {
-    1: i64 status_code
-    2: string status_message
-    3: i64 service_time
-}
+namespace go douyin.api
 
-struct User {
-    1: i64 user_id
-    2: string username
-    3: string avatar
-    4: optional i64 follow_count
-    5: optional i64 follower_count
-    6: bool is_follow
-}
+service DouyinApi {
+    // basic service
+    base.douyin_feed_response Feed(1:base.douyin_feed_request req)(api.get="/douyin/feed/")
+    base.douyin_user_register_response UserRegister(1:base.douyin_user_register_request req)(api.post="/douyin/user/register/")
+    base.douyin_user_login_response UserLogin(1:base.douyin_user_login_request req)(api.post="/douyin/user/login/")
+    base.douyin_user_response UserMsg(1:base.douyin_user_request req)(api.get="/douyin/user/")
+    base.douyin_publish_action_response PublishAction(1:base.douyin_publish_action_request req)(api.post="/douyin/publish/action/")
+    base.douyin_publish_list_response PublishList(1:base.douyin_publish_list_request req)(api.get="/douyin/publish/list/")
 
-struct CreateUserRequest {
-    1: string username (api.form="username", api.vd="len($) > 0")
-    2: string password (api.form="password", api.vd="len($) > 0")
-}
-
-struct CreateUserResponse {
-    1: BaseResp base_resp
-}
-
-struct CheckUserRequest {
-    1: string username (api.form="username", api.vd="len($) > 0")
-    2: string password (api.form="password", api.vd="len($) > 0")
-}
-
-struct CheckUserResponse {
-    1: BaseResp base_resp
-}
-
-struct Video {
-    1: i64 id
-    2: User author
-    3: string play_url
-    4: string cover_url
-    5: i64 favorite_count
-    6: i64 comment_count
-    7: bool is_favorite
-    8: string title
-}
-
-struct FeedRequest {
-    1: optional i64 latest_time
-    2: optional string token
-}
-
-struct FeedResponse {
-    1: i32 status_code // 状态码，0-成功，其他值-失败
-    2: optional string status_msg // 返回状态描述
-    3: list<Video> video_list // 视频列表
-    4: i64 next_time // 本次返回的视频中，发布最早的时间，作为下次请求时的latest_time
-}
-
-struct IdRequest {
-    1: i64 video_id
-    2: i64 search_id
-}
-
-service FeedService {
-    FeedResponse GetUserFeed(1: FeedRequest req)
-    Video GetVideoById(2: IdRequest req)
-}
-
-service ApiService {
-    CreateUserResponse CreateUser(1: CreateUserRequest req) (api.post="/v2/user/register")
-    CheckUserResponse CheckUser(1: CheckUserRequest req) (api.post="/v2/user/login")
-    FeedResponse GetUserFeed(1: FeedRequest req) (api.get="/v2/feed")
+    // social service
+    social.douyin_follow_action_response FollowAction(1:social.douyin_follow_action_request req)(api.get="/douyin/relation/action/")
+    social.douyin_following_list_response FollowList(1:social.douyin_following_list_request req)(api.get="/douyin/relatioin/follow/list/")
+    social.douyin_follower_list_response FollowerList(1:social.douyin_follower_list_request req)(api.get="/douyin/relation/follower/list/")
+    social.douyin_relation_friend_list_response FriendList(1:social.douyin_relation_friend_list_request req)(api.get="/douyin/relation/friend/list/")
+    social.douyin_message_chat_response MessageList(1:social.douyin_message_chat_request req)(api.get="/douyin/message/chat/")
+    social.douyin_message_action_response SendMessage(1:social.douyin_message_action_request req)(api.post="/douyin/message/action/")
 }
