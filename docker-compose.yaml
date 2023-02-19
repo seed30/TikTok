@@ -78,3 +78,28 @@ services:
       - GF_AUTH_DISABLE_LOGIN_FORM=true
     ports:
       - "3000:3000"
+  
+  # Redis 和 RabibitMQ 配置参考 config/redis.conf & config/nginx.conf
+  #redis
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: on-failure # 重启方式
+    environment:
+      - TZ=Asia/Shanghai
+    privileged: true  #root权限
+    ports:
+      - 6379:6379      
+  #RabbitMq
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq  
+    ports:
+      - 5672:5672 # 生产者和消费者连接使用的接口
+      - 15672:15672 # web UI 管理接口
+    environment:
+      TZ: Asia/Shanghai
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: 123456
+    
+
